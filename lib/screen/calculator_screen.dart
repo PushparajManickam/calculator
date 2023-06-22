@@ -1,4 +1,3 @@
-
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:calculator/main.dart';
 import 'package:flutter/material.dart';
@@ -14,18 +13,21 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with ChangeNotifier {
   final List<String> _buttonList = [
-    "1",
-    "2",
-    "3",
-    "+",
-    "4",
-    "5",
-    "6",
-    "-",
     "7",
     "8",
     "9",
     "*",
+    "4",
+    "5",
+    "6",
+    "-",
+    "1",
+    "2",
+    "3",
+    "+",
+    "+/-",
+    "0",
+    ""
   ];
   String resultValue = "";
   @override
@@ -53,32 +55,20 @@ class _HomeScreenState extends State<HomeScreen> with ChangeNotifier {
           SizedBox(
             height: deviceSize!.height * 0.01,
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              ButtonWidget(
-                _buttonList[0],
-                () {},
-              ),
-              ButtonWidget(
-                _buttonList[1],
-                () {},
-              ),
-              ButtonWidget(
-                _buttonList[2],
-                () {},
-              ),
-              ButtonWidget(
-                _buttonList[3],
-                () {},
-                buttonBGColor: Colors.purpleAccent,
-              ),
-            ],
+          Wrap(
+            runSpacing: 6,
+            children: _buttonList
+                .map(
+                  (value) => ButtonWidget(
+                    value,
+                    () {},
+                  ),
+                )
+                .toList(),
           ),
           SizedBox(
             height: deviceSize!.height * 0.01,
           ),
-          
         ],
       ),
     );
