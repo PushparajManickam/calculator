@@ -3,6 +3,7 @@ import 'package:calculator/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:math_expressions/math_expressions.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,7 +13,14 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with ChangeNotifier {
+  final Widget _commonSizedBox = SizedBox(
+    height: deviceSize!.height * 0.05,
+  );
   final List<String> _buttonList = [
+    "C",
+    "(",
+    ")",
+    "%",
     "7",
     "8",
     "9",
@@ -27,9 +35,13 @@ class _HomeScreenState extends State<HomeScreen> with ChangeNotifier {
     "+",
     "+/-",
     "0",
-    ""
+    ".",
+    "=",
   ];
-  String resultValue = "";
+  ValueNotifier<String> _resultValueNotifier = ValueNotifier<String>("");
+  //Math expression
+  Parser _parse = Parser();
+  ContextModel _contextModel = ContextModel();
   @override
   void initState() {
     // TODO: implement initState
@@ -42,34 +54,62 @@ class _HomeScreenState extends State<HomeScreen> with ChangeNotifier {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          SizedBox(
-            height: deviceSize!.height * 0.3,
-            child: AutoSizeText(
-              resultValue,
-            ),
-          ),
-          SizedBox(
-            height: deviceSize!.height * 0.01,
-          ),
-          Wrap(
-            runSpacing: 6,
-            children: _buttonList
-                .map(
-                  (value) => ButtonWidget(
-                    value,
-                    () {},
+    return SafeArea(
+      child: Scaffold(
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            _commonSizedBox,
+            Expanded(
+              child: ValueListenableBuilder(
+                valueListenable: _resultValueNotifier,
+                builder: (context, value, child) => AutoSizeText(
+                  value,
+                  style: MyStyle.myTextStyle(
+                    Colors.black,
+                    24.0,
+                    FontWeight.w700,
+                    1.0,
+                    2.0,
                   ),
-                )
-                .toList(),
-          ),
-          SizedBox(
-            height: deviceSize!.height * 0.01,
-          ),
-        ],
+                ),
+              ),
+            ),
+            _commonSizedBox,
+            Wrap(
+              runSpacing: 6,
+              children: _buttonList
+                  .map(
+                    (value) => ButtonWidget(
+                      value,
+                      () {
+                        switch (value) {
+                          case "C":
+                            _resultValueNotifier.value = "";
+                            break;
+                          case "=":
+                            Expression _expression =
+                                _parse.parse(_resultValueNotifier.value);
+                            _resultValueNotifier.value = (
+                              _expression.evaluate(
+                                EvaluationType.REAL,
+                                _contextModel,
+                              ),
+                            ).toString();
+                            break;
+                          default:
+                            _resultValueNotifier.value =
+                                _resultValueNotifier.value + value;
+                            break;
+                        }
+                      },
+                    ),
+                  )
+                  .toList(),
+            ),
+            _commonSizedBox,
+          ],
+        ),
       ),
     );
   }
@@ -89,11 +129,11 @@ class ButtonWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: callBackFunc,
-      child: SizedBox(
-        width: deviceSize!.width * 0.25,
-        height: deviceSize!.height * 0.1,
+    return SizedBox(
+      width: deviceSize!.width * 0.25,
+      height: deviceSize!.height * 0.1,
+      child: InkWell(
+        onTap: callBackFunc,
         child: CircleAvatar(
           backgroundColor: (buttonBGColor != null) ? buttonBGColor : null,
           child: Container(
