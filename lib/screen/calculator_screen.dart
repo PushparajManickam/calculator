@@ -1,9 +1,13 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:calculator/main.dart';
+import 'package:calculator/provider/history_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:math_expressions/math_expressions.dart';
+import 'package:provider/provider.dart';
+
+import 'history.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -38,6 +42,7 @@ class _HomeScreenState extends State<HomeScreen> with ChangeNotifier {
     ".",
     "=",
   ];
+  
   ValueNotifier<String> _resultValueNotifier = ValueNotifier<String>("");
   //Math expression
   Parser _parse = Parser();
@@ -56,21 +61,48 @@ class _HomeScreenState extends State<HomeScreen> with ChangeNotifier {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        backgroundColor: Colors.grey.shade100,
         body: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
+            const SizedBox(
+              height: 10,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                IconButton(
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CalculatorHistory(),
+                    ),
+                  ),
+                  icon: Icon(
+                    Icons.history,
+                  ),
+                ),
+              ],
+            ),
             _commonSizedBox,
             Expanded(
-              child: ValueListenableBuilder(
-                valueListenable: _resultValueNotifier,
-                builder: (context, value, child) => AutoSizeText(
-                  value,
-                  style: MyStyle.myTextStyle(
-                    Colors.black,
-                    24.0,
-                    FontWeight.w700,
-                    1.0,
-                    2.0,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: ValueListenableBuilder(
+                    valueListenable: _resultValueNotifier,
+                    builder: (context, value, child) => AutoSizeText(
+                      value,
+                      textAlign: TextAlign.end,
+                      style: MyStyle.myTextStyle(
+                        Colors.black,
+                        deviceSize!.width * 0.2,
+                        FontWeight.w700,
+                        1.0,
+                        2.0,
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -88,6 +120,7 @@ class _HomeScreenState extends State<HomeScreen> with ChangeNotifier {
                             _resultValueNotifier.value = "";
                             break;
                           case "=":
+                            String _queryQuestion = _resultValueNotifier.value;
                             Expression _expression =
                                 _parse.parse(_resultValueNotifier.value);
                             _resultValueNotifier.value = (
@@ -96,6 +129,12 @@ class _HomeScreenState extends State<HomeScreen> with ChangeNotifier {
                                 _contextModel,
                               ),
                             ).toString();
+                            List _tempList = [
+                              _queryQuestion,
+                              _resultValueNotifier.value,
+                            ];
+                            Provider.of<HistoryProvider>(context, listen: false).setDataHistory = _tempList;
+
                             break;
                           default:
                             _resultValueNotifier.value =
@@ -147,7 +186,7 @@ class ButtonWidget extends StatelessWidget {
               minFontSize: 18,
               style: MyStyle.myTextStyle(
                 Colors.black,
-                18.0,
+                24.0,
                 FontWeight.w700,
                 1.0,
                 2.0,

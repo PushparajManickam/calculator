@@ -1,4 +1,6 @@
+import 'package:calculator/provider/history_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'screen/calculator_screen.dart';
 
@@ -17,15 +19,22 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     deviceSize = MediaQuery.of(context).size;
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
+    return MultiProvider(
+      providers: [
+        Provider<HistoryProvider>(
+          create: (_) => HistoryProvider(),
+        )
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.deepPurple,
+          ),
+          useMaterial3: true,
         ),
-        useMaterial3: true,
+        home: const HomeScreen(),
       ),
-      home: const HomeScreen(),
     );
   }
 }
